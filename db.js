@@ -1,113 +1,102 @@
+require('dotenv').config();
 const Database = require('better-sqlite3');
-const db = new Database('repodepot.db');
+const path = require('path');
 
-// Create listings table
+const dbPath = process.env.DATABASE_PATH || 'repodepot.db';
+const db = new Database(dbPath);
+
+// Create listings table with business-focused schema
 db.exec(`
   CREATE TABLE IF NOT EXISTS listings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
+    business_outcome TEXT,
     price INTEGER NOT NULL,
     icon TEXT,
     badge TEXT,
     inventory_badge TEXT,
-    sloc INTEGER,
+    tech_stack TEXT, -- Store as JSON string
     featured INTEGER DEFAULT 0,
-    tags TEXT, -- Store as JSON string
-    tooltip TEXT
+    details TEXT, -- Store as JSON string (ROI, cost savings, etc.)
+    delivery_info TEXT -- What the buyer gets instantly
   )
 `);
 
-// Seed data
+// Seed data with strong business messaging
 const seedListings = [
   {
     name: 'AI Trading Dashboard Core',
-    description: 'A complete high-frequency trading interface. Connect your API keys and launch your own signal service or trading platform today.',
+    description: 'A complete high-frequency trading interface. Own the infrastructure behind a professional signal service.',
+    business_outcome: 'Launch a proprietary trading platform or signal service in days, not months. Save $40k+ in initial development costs.',
     price: 8500,
     icon: '🤖',
     badge: '★ PREMIUM',
-    inventory_badge: 'Single License Only',
-    sloc: 3200,
+    inventory_badge: 'Exclusive Ownership',
+    tech_stack: JSON.stringify(['Next.js 15', 'FastAPI', 'Redis', 'Supabase']),
     featured: 1,
-    tags: JSON.stringify(['Next.js 15', 'FastAPI', 'Redis', 'Supabase']),
-    tooltip: 'Includes: Full source code, commercial license, deployment guide, 30-day technical support'
+    details: JSON.stringify({
+      roi: 'Break even with 15-20 premium subscribers.',
+      maintenance: 'Low. Fully containerized and ready for scale.',
+      scalability: 'Handles 10k+ concurrent WebSocket connections.'
+    }),
+    delivery_info: 'Full source code, deployment automation, and IP transfer agreement.'
   },
   {
-    name: 'SaaS Billing Engine',
-    description: 'Scale your SaaS without building billing from scratch. Includes metered usage, dunning flows, and automated tax handling.',
+    name: 'SaaS Billing Infrastructure',
+    description: 'The backbone for any subscription business. Replace high-fee billing SaaS with your own platform.',
+    business_outcome: 'Eliminate monthly "seat taxes" and per-transaction fees. Own your billing logic and customer data.',
     price: 3200,
     icon: '⚡',
     badge: '',
-    inventory_badge: 'Verified Revenue',
-    sloc: 1800,
+    inventory_badge: 'Verified Logic',
+    tech_stack: JSON.stringify(['Next.js', 'Stripe', 'Prisma', 'PostgreSQL']),
     featured: 0,
-    tags: JSON.stringify(['Next.js', 'Stripe', 'Prisma', 'PostgreSQL']),
-    tooltip: 'Includes: Full source code, Stripe configuration guide, environment templates'
+    details: JSON.stringify({
+      cost_savings: 'Saves ~$1,200/year in middleware fees for early-stage startups.',
+      features: 'Metered billing, dunning flows, and automated tax handling.'
+    }),
+    delivery_info: 'Production-ready billing engine and environment configuration.'
   },
   {
-    name: 'Auth Zero — Identity Layer',
-    description: 'A drop-in identity provider for enterprise apps. Support SSO and MFA out of the box. Own your user data without the monthly seat tax.',
+    name: 'Auth Zero — Identity Provider',
+    description: 'A drop-in identity provider for enterprise apps. Own your user data without the "auth tax".',
+    business_outcome: 'Support Enterprise SSO and MFA out of the box. Ideal for B2B SaaS aiming for the "Enterprise Ready" badge.',
     price: 1900,
     icon: '🛡️',
     badge: '',
-    inventory_badge: 'Enterprise Ready',
-    sloc: 2100,
+    inventory_badge: 'Enterprise Grade',
+    tech_stack: JSON.stringify(['Go', 'JWT', 'OAuth 2.0', 'Redis']),
     featured: 0,
-    tags: JSON.stringify(['Go', 'JWT', 'OAuth 2.0', 'Redis']),
-    tooltip: 'Includes: Production auth core, white-label UI, security documentation'
-  },
-  {
-    name: 'Analytics Platform Core',
-    description: 'A self-hosted, white-label analytics engine. Own your customer data and build custom dashboards for your clients without per-event fees.',
-    price: 4800,
-    icon: '📊',
-    badge: '',
-    inventory_badge: 'SaaS Ready',
-    sloc: 4400,
-    featured: 0,
-    tags: JSON.stringify(['React', 'Python', 'ClickHouse', 'D3.js']),
-    tooltip: 'Includes: Full white-label source, database schema, deployment manifests'
-  },
-  {
-    name: 'Edge CDN Orchestrator',
-    description: 'Production-ready edge routing. Deploy a global CDN with smart caching and geo-aware logic in minutes using Cloudflare Workers.',
-    price: 2400,
-    icon: '🌐',
-    badge: '',
-    inventory_badge: 'High Performance',
-    sloc: 980,
-    featured: 0,
-    tags: JSON.stringify(['TypeScript', 'Workers', 'KV Store']),
-    tooltip: 'Includes: Edge Worker source, routing templates, cache logic'
-  },
-  {
-    name: 'LLM Gateway — API Router',
-    description: 'The infrastructure for your AI startup. Unified routing, fallback chains, and precise cost tracking across all major LLM providers.',
-    price: 6200,
-    icon: '🧠',
-    badge: '',
-    inventory_badge: 'AI Infrastructure',
-    sloc: 2700,
-    featured: 0,
-    tags: JSON.stringify(['Bun', 'Hono', 'OpenAI', 'Anthropic']),
-    tooltip: 'Includes: Router source code, provider adapters, cost-tracking layer'
+    details: JSON.stringify({
+      compliance: 'Built with SOC2/GDPR principles in mind.',
+      integration: 'Plug-and-play with any OIDC-compliant application.'
+    }),
+    delivery_info: 'Self-hosted identity core and security documentation.'
   }
 ];
 
-const insert = db.prepare(`
-  INSERT INTO listings (name, description, price, icon, badge, inventory_badge, sloc, featured, tags, tooltip)
-  VALUES (@name, @description, @price, @icon, @badge, @inventory_badge, @sloc, @featured, @tags, @tooltip)
-`);
+function seed() {
+  const count = db.prepare('SELECT count(*) as count FROM listings').get().count;
+  if (count === 0) {
+    const insert = db.prepare(`
+      INSERT INTO listings (name, description, business_outcome, price, icon, badge, inventory_badge, tech_stack, featured, details, delivery_info)
+      VALUES (@name, @description, @business_outcome, @price, @icon, @badge, @inventory_badge, @tech_stack, @featured, @details, @delivery_info)
+    `);
 
-const count = db.prepare('SELECT count(*) as count FROM listings').get().count;
+    const transaction = db.transaction((listings) => {
+      for (const listing of listings) {
+        insert.run(listing);
+      }
+    });
 
-if (count === 0) {
-  for (const listing of seedListings) {
-    insert.run(listing);
+    transaction(seedListings);
+    console.log('Database seeded with business-focused listings.');
+  } else {
+    console.log('Database already contains listings. Skipping seed.');
   }
-  console.log('Database seeded with initial listings.');
-} else {
-  console.log('Database already contains listings.');
 }
+
+seed();
 
 module.exports = db;
