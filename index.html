@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepoDepot — Premium Repositories. Instant Delivery.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#050504;
+  --surface:#0c0c0a;
+  --surface2:#121210;
+  --surface3:#181816;
+  --border:#ffffff0d;
+  --border2:#ffffff16;
+  --text:#ede8e0;
+  --muted:#7a7468;
+  --dim:#38352e;
+  --cyan:#ff6a1a;
+  --cyan-dim:#ff6a1a22;
+  --violet:#c8f026;
+  --violet-dim:#c8f02618;
+  --emerald:#ff6a1a;
+  --emerald-dim:#ff6a1a18;
+  --amber:#c8f026;
+  --green:#10f090;
+  --font-display:'Bebas Neue',sans-serif;
+  --font-body:'Rajdhani',sans-serif;
+  --font-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--black);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:17px;
+  font-weight:500;
+  line-height:1.6;
+  overflow-x:hidden;
+  cursor:none;
+}
+a{color:inherit;text-decoration:none}
+
+/* CUSTOM CURSOR */
+#cursor{
+  position:fixed;width:12px;height:12px;border-radius:50%;
+  background:var(--cyan);pointer-events:none;z-index:9999;
+  mix-blend-mode:screen;transition:transform 0.15s ease,background 0.2s;
+  transform:translate(-50%,-50%);
+}
+#cursor-ring{
+  position:fixed;width:36px;height:36px;border-radius:50%;
+  border:1px solid var(--cyan);opacity:0.4;pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);transition:all 0.35s cubic-bezier(0.25,0.46,0.45,0.94),background 0.2s;
+}
+body:has(a:hover) #cursor,body:has(button:hover) #cursor{transform:translate(-50%,-50%) scale(2.5);background:var(--violet)}
+body:has(a:hover) #cursor-ring,body:has(button:hover) #cursor-ring{transform:translate(-50%,-50%) scale(1.5);border-color:var(--violet);opacity:0.3}
+
+/* GRID BACKGROUND */
+.grid-bg{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(var(--border) 1px,transparent 1px),
+    linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 0%,black 30%,transparent 100%);
+}
+.noise{
+  position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='0.1'/%3E%3C/svg%3E");
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;height:64px;
+  background:rgba(6,6,8,0.7);
+  backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:var(--font-display);font-weight:400;font-size:20px;
+  letter-spacing:0.04em;display:flex;align-items:center;gap:8px;
+}
+.logo-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 12px var(--cyan);animation:pulse 2s ease infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.85)}}
+.nav-links{display:flex;align-items:center;gap:8px}
+.nav-link{
+  font-size:13px;color:var(--muted);padding:6px 14px;border-radius:6px;
+  transition:color 0.2s,background 0.2s;font-weight:500;
+}
+.nav-link:hover{color:var(--text);background:var(--surface2)}
+.nav-cta{
+  font-size:13px;font-weight:600;padding:8px 18px;border-radius:7px;
+  background:var(--cyan);color:#000;transition:all 0.2s;cursor:pointer;
+  box-shadow:0 0 20px var(--cyan-dim);
+}
+.nav-cta:hover{background:#fff;box-shadow:0 0 30px rgba(0,229,255,0.3)}
+
+/* HERO */
+.hero{
+  position:relative;z-index:10;
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:120px 40px 80px;text-align:center;
+  overflow:hidden;
+}
+.hero-glow{
+  position:absolute;top:-200px;left:50%;transform:translateX(-50%);
+  width:800px;height:600px;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 30%,rgba(255,106,26,0.07) 0%,rgba(200,240,38,0.04) 40%,transparent 70%);
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px 6px 8px;border-radius:100px;
+  border:1px solid var(--border2);background:var(--surface);
+  font-size:12px;font-family:var(--font-mono);color:var(--muted);
+  margin-bottom:32px;
+}
+.badge-pip{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.badge-tag{background:var(--cyan-dim);color:var(--cyan);padding:2px 8px;border-radius:100px;font-size:11px;margin-right:4px}
+.hero-title{
+  font-family:var(--font-display);font-weight:400;
+  font-size:clamp(72px,10vw,140px);line-height:0.92;letter-spacing:0.01em;
+  margin-bottom:24px;max-width:900px;
+}
+.hero-title .line1{display:block;color:var(--text)}
+.hero-title .line2{
+  display:block;color:var(--cyan);
+  text-shadow:0 0 40px rgba(255,106,26,0.3);
+}
+.hero-sub{
+  font-size:18px;color:var(--muted);max-width:520px;margin:0 auto 48px;
+  font-weight:400;line-height:1.65;
+}
+
+/* TRUST BADGES */
+.trust-badges{
+  display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
+  margin-bottom:48px;font-size:13px;
+}
+.trust-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:6px;
+  background:rgba(16,240,144,0.1);border:1px solid rgba(16,240,144,0.3);
+  color:var(--green);font-weight:600;
+}
+.trust-badge::before{content:'✓';font-weight:700}
+
+.hero-actions{display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap;flex-direction:column;max-width:420px;margin:0 auto}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;justify-content:center;
+  padding:16px 32px;border-radius:10px;font-weight:700;font-size:16px;
+  background:var(--cyan);color:#000;border:none;cursor:pointer;width:100%;
+  transition:all 0.2s;box-shadow:0 0 30px rgba(0,229,255,0.25),0 2px 8px rgba(0,0,0,0.4);
+}
+.btn-primary:hover{background:#fff;transform:translateY(-2px);box-shadow:0 0 40px rgba(0,229,255,0.35),0 4px 20px rgba(0,0,0,0.4)}
+.btn-primary svg{transition:transform 0.2s}
+.btn-primary:hover svg{transform:translateX(3px)}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;justify-content:center;
+  padding:14px 28px;border-radius:10px;font-weight:600;font-size:15px;
+  background:transparent;color:var(--text);border:1px solid var(--border2);cursor:pointer;
+  transition:all 0.2s;width:100%;
+}
+.btn-secondary:hover{border-color:rgba(255,255,255,0.25);background:var(--surface2);transform:translateY(-1px)}
+
+.hero-stats{
+  margin-top:80px;display:flex;gap:0;
+  border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;background:var(--surface);
+}
+.hero-stat{
+  padding:20px 40px;text-align:center;flex:1;
+  border-right:1px solid var(--border);
+}
+.hero-stat:last-child{border-right:none}
+.stat-num{
+  font-family:var(--font-display);font-size:36px;font-weight:400;
+  color:var(--cyan);
+}
+.stat-label{font-size:12px;color:var(--muted);margin-top:2px;font-family:var(--font-mono)}
+
+/* SOCIAL PROOF TICKER */
+.social-proof-ticker{
+  position:fixed;bottom:0;left:0;right:0;z-index:95;
+  background:rgba(12,12,10,0.95);backdrop-filter:blur(10px);
+  border-top:1px solid var(--border);
+  padding:12px 20px;font-size:13px;
+  display:flex;align-items:center;gap:12px;
+  animation:slideUp 0.4s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.ticker-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s ease infinite}
+.ticker-text{color:var(--text)}
+.ticker-time{color:var(--muted);font-family:var(--font-mono);font-size:11px}
+
+/* MARQUEE */
+.marquee-section{
+  position:relative;z-index:10;
+  padding:40px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  overflow:hidden;background:var(--surface);
+}
+.marquee-track{display:flex;gap:0;animation:marquee 30s linear infinite}
+.marquee-item{
+  flex-shrink:0;padding:0 32px;font-family:var(--font-mono);font-size:12px;
+  color:var(--dim);white-space:nowrap;display:flex;align-items:center;gap:12px;
+}
+.marquee-item span{color:var(--muted)}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* SECTION */
+section{position:relative;z-index:10;padding:100px 40px}
+.section-label{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--font-mono);font-size:11px;color:var(--cyan);
+  letter-spacing:0.12em;text-transform:uppercase;margin-bottom:20px;
+}
+.section-label::before{content:'';width:20px;height:1px;background:var(--cyan)}
+.section-title{
+  font-family:var(--font-display);font-weight:400;
+  font-size:clamp(48px,6vw,80px);line-height:0.95;letter-spacing:0.01em;
+  margin-bottom:16px;
+}
+.section-sub{font-size:17px;color:var(--muted);max-width:480px;line-height:1.65}
+.section-header{margin-bottom:64px}
+
+/* FEATURED REPOS */
+.repos-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  border:1px solid var(--border);border-radius:16px;overflow:hidden;
+  background:var(--border);
+}
+.repo-card{
+  background:var(--surface);padding:32px;
+  transition:background 0.25s;position:relative;overflow:hidden;
+  cursor:pointer;
+}
+.repo-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,106,26,0.07) 0%,transparent 60%);
+  opacity:0;transition:opacity 0.3s;
+}
+.repo-card:hover::before{opacity:1}
+.repo-card:hover{background:var(--surface2)}
+.repo-card.featured{
+  background:linear-gradient(135deg,rgba(255,106,26,0.06),rgba(200,240,38,0.04));
+  border:1px solid rgba(255,106,26,0.2);
+}
+.repo-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.repo-icon{
+  width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;border:1px solid var(--border2);
+}
+.repo-price{
+  font-family:var(--font-display);font-weight:400;font-size:28px;
+  color:var(--cyan);cursor:help;
+}
+.repo-price span{font-size:13px;font-weight:400;color:var(--muted);font-family:var(--font-body)}
+.repo-price .tooltip-icon{margin-left:6px;font-size:14px;display:inline-block}
+.repo-name{
+  font-family:var(--font-display);font-size:22px;font-weight:400;
+  margin-bottom:8px;letter-spacing:0.02em;
+}
+.repo-desc{font-size:14px;color:var(--muted);line-height:1.55;margin-bottom:20px;font-weight:500}
+.repo-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.tag{
+  font-family:var(--font-mono);font-size:10px;padding:3px 8px;border-radius:4px;
+  background:var(--surface3);border:1px solid var(--border);color:var(--muted);
+}
+.tag.cyan{background:rgba(255,106,26,0.12);border-color:rgba(255,106,26,0.25);color:var(--cyan)}
+.tag.violet{background:rgba(200,240,38,0.1);border-color:rgba(200,240,38,0.2);color:var(--violet)}
+.tag.emerald{background:rgba(255,106,26,0.12);border-color:rgba(255,106,26,0.25);color:var(--cyan)}
+.repo-footer{display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid var(--border)}
+.repo-meta{font-family:var(--font-mono);font-size:11px;color:var(--dim);display:flex;gap:12px}
+.repo-meta span{color:var(--muted)}
+.repo-buy{
+  font-size:12px;font-weight:600;padding:7px 14px;border-radius:7px;
+  background:var(--cyan);border:1px solid var(--cyan);color:#000;
+  transition:all 0.2s;cursor:pointer;font-weight:700;
+}
+.repo-buy:hover{background:#fff;border-color:#fff}
+.featured-badge{
+  position:absolute;top:16px;right:16px;
+  font-family:var(--font-mono);font-size:10px;
+  background:var(--cyan);
+  color:#000;padding:3px 10px;border-radius:100px;font-weight:700;
+}
+.inventory-badge{
+  position:absolute;bottom:32px;right:32px;
+  font-family:var(--font-mono);font-size:11px;
+  background:rgba(16,240,144,0.15);
+  color:var(--green);padding:4px 8px;border-radius:4px;font-weight:600;border:1px solid rgba(16,240,144,0.3);
+}
+
+/* CATEGORIES */
+.cats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.cat-card{
+  padding:28px 24px;border-radius:12px;border:1px solid var(--border);
+  background:var(--surface);transition:all 0.25s;cursor:pointer;
+  position:relative;overflow:hidden;
+}
+.cat-card:hover{border-color:var(--border2);background:var(--surface2);transform:translateY(-2px)}
+.cat-icon{font-size:28px;margin-bottom:14px;display:block}
+.cat-name{font-family:var(--font-display);font-weight:400;font-size:20px;margin-bottom:4px;letter-spacing:0.02em}
+.cat-count{font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+.cat-arrow{
+  position:absolute;bottom:24px;right:24px;width:28px;height:28px;
+  border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;
+  color:var(--muted);font-size:14px;transition:all 0.2s;
+}
+.cat-card:hover .cat-arrow{background:var(--cyan);border-color:var(--cyan);color:#000}
+
+/* HOW IT WORKS */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.step{background:var(--surface);padding:40px 32px;position:relative}
+.step-num{
+  font-family:var(--font-display);font-size:64px;font-weight:400;
+  color:var(--border2);line-height:1;margin-bottom:20px;
+}
+.step-title{font-family:var(--font-display);font-size:24px;font-weight:400;margin-bottom:8px;letter-spacing:0.02em}
+.step-desc{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* TESTIMONIALS */
+.testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.testi{
+  padding:28px;border-radius:14px;border:1px solid var(--border);
+  background:var(--surface);
+}
+.testi-verified{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;color:var(--green);margin-bottom:12px;font-weight:600;
+}
+.testi-verified::before{content:'✓'}
+.testi-text{font-size:14px;line-height:1.7;color:var(--text);margin-bottom:20px}
+.testi-author{display:flex;align-items:center;gap:12px}
+.avatar{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;font-family:var(--font-mono);
+}
+.av1{background:rgba(0,229,255,0.15);color:var(--cyan)}
+.av2{background:rgba(139,92,246,0.15);color:var(--violet)}
+.av3{background:rgba(16,240,144,0.15);color:var(--green)}
+.testi-name{font-weight:600;font-size:14px}
+.testi-role{font-size:12px;color:var(--muted)}
+.stars{color:var(--amber);font-size:12px;margin-bottom:12px;letter-spacing:2px}
+
+/* CTA SECTION */
+.cta-section{
+  position:relative;z-index:10;padding:80px 40px;
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  background:var(--surface);overflow:hidden;
+}
+.cta-glow{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:600px;height:400px;pointer-events:none;
+  background:radial-gradient(ellipse,rgba(255,106,26,0.1) 0%,rgba(200,240,38,0.05) 40%,transparent 70%);
+}
+.cta-inner{position:relative;text-align:center;max-width:640px;margin:0 auto}
+.cta-title{
+  font-family:var(--font-display);font-size:clamp(56px,7vw,96px);
+  font-weight:400;letter-spacing:0.01em;line-height:0.92;margin-bottom:20px;
+}
+.cta-sub{font-size:17px;color:var(--muted);margin-bottom:40px;line-height:1.65}
+.cta-buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;flex-direction:column;max-width:360px;margin:0 auto}
+
+/* FOOTER */
+footer{
+  position:relative;z-index:10;padding:60px 40px 40px;
+  border-top:1px solid var(--border);
+}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:60px}
+.footer-logo{font-family:var(--font-display);font-weight:400;font-size:28px;letter-spacing:0.02em;margin-bottom:10px}
+.footer-tagline{font-family:var(--font-mono);font-size:11px;color:var(--dim)}
+.footer-links{display:flex;gap:60px}
+.footer-col h4{font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;font-family:var(--font-mono)}
+.footer-col a{display:block;font-size:13px;color:var(--dim);margin-bottom:10px;transition:color 0.2s;cursor:pointer}
+.footer-col a:hover{color:var(--text)}
+.footer-bottom{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:24px;border-top:1px solid var(--border);
+  font-family:var(--font-mono);font-size:11px;color:var(--dim);
+}
+
+/* ANIMATIONS */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--black)}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+
+/* GLOW ACCENTS */
+.glow-line{
+  height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  margin:0;border:none;opacity:0.4;
+}
+
+/* MODAL */
+.modal{
+  display:none;position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;
+}
+.modal.active{display:flex;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-content{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:40px;max-width:480px;width:90%;
+  position:relative;animation:slideDown 0.3s ease;
+}
+@keyframes slideDown{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-close{
+  position:absolute;top:16px;right:16px;
+  width:28px;height:28px;border:none;background:transparent;
+  color:var(--muted);font-size:24px;cursor:pointer;
+  transition:color 0.2s;
+}
+.modal-close:hover{color:var(--text)}
+.modal-title{
+  font-family:var(--font-display);font-size:32px;font-weight:400;
+  margin-bottom:8px;letter-spacing:0.01em;
+}
+.modal-sub{
+  font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6;
+}
+.modal-form{display:flex;flex-direction:column;gap:16px}
+.form-input{
+  padding:12px 16px;border:1px solid var(--border);border-radius:8px;
+  background:var(--black);color:var(--text);font-family:var(--font-body);
+  font-size:14px;transition:border 0.2s;
+}
+.form-input:focus{outline:none;border-color:var(--cyan)}
+.form-input::placeholder{color:var(--dim)}
+.modal-cta{
+  padding:14px 20px;background:var(--cyan);color:#000;border:none;
+  border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;
+  transition:all 0.2s;
+}
+.modal-cta:hover{background:#fff}
+.modal-guarantee{
+  font-size:12px;color:var(--muted);text-align:center;margin-top:16px;
+  padding-top:16px;border-top:1px solid var(--border);
+}
+
+/* TOOLTIP */
+.tooltip{position:relative;display:inline-block}
+.tooltip .tooltip-text{
+  visibility:hidden;width:200px;background:var(--surface2);color:var(--text);
+  text-align:left;border-radius:6px;padding:8px 12px;
+  position:absolute;z-index:1;bottom:125%;left:-50%;
+  opacity:0;transition:opacity 0.3s;font-size:12px;border:1px solid var(--border);
+  font-weight:400;line-height:1.5;
+}
+.tooltip:hover .tooltip-text{visibility:visible;opacity:1}
+.tooltip .tooltip-text::after{
+  content:'';position:absolute;top:100%;left:50%;margin-left:-5px;
+  border-width:5px;border-style:solid;
+  border-color:var(--surface2) transparent transparent transparent;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+  nav{padding:0 20px}
+  .nav-links{display:none}
+  section{padding:60px 20px}
+  .hero{padding:100px 20px 60px}
+  .hero-stats{flex-direction:column}
+  .hero-stat{border-right:none;border-bottom:1px solid var(--border)}
+  .trust-badges{gap:8px}
+  .trust-badge{font-size:12px;padding:6px 10px}
+  .hero-actions{width:100%}
+  .btn-primary,.btn-secondary{width:100%}
+  .repos-grid{grid-template-columns:1fr}
+  .cats-grid{grid-template-columns:repeat(2,1fr)}
+  .steps{grid-template-columns:1fr 1fr}
+  .testimonials{grid-template-columns:1fr}
+  .footer-top{flex-direction:column;gap:40px}
+  .footer-links{flex-direction:column;gap:32px}
+  .footer-bottom{flex-direction:column;gap:12px;text-align:center}
+  .cta-buttons{width:100%}
+  .modal-content{padding:32px 24px}
+  .social-proof-ticker{flex-direction:column;gap:8px}
+}
+
+/* TERMINAL PREVIEW */
+.terminal{
+  background:#070709;border:1px solid var(--border2);border-radius:12px;
+  overflow:hidden;font-family:var(--font-mono);max-width:600px;margin:0 auto;
+}
+.terminal-bar{
+  background:var(--surface);padding:12px 16px;display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--border);
+}
+.t-dot{width:10px;height:10px;border-radius:50%}
+.t-dot.r{background:#ff5f57}.t-dot.y{background:#febc2e}.t-dot.g{background:#28c840}
+.terminal-body{padding:20px;font-size:12px;line-height:1.9;color:var(--muted)}
+.t-cyan{color:var(--cyan)}.t-violet{color:var(--violet)}.t-emerald{color:var(--emerald)}.t-amber{color:var(--amber)}.t-white{color:var(--text)}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- BACKGROUND -->
+<div class="grid-bg"></div>
+<div class="noise"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-dot"></div>
+    RepoDepot
+  </div>
+  <div class="nav-links">
+    <a href="#browse" class="nav-link">Browse</a>
+    <a href="#categories" class="nav-link">Categories</a>
+    <a href="#how" class="nav-link">How It Works</a>
+    <a href="#sell" class="nav-link">Sell</a>
+  </div>
+  <button onclick="openEarlyAccess()" class="nav-cta">Get Early Access →</button>
+</nav>
+
+<!-- EARLY ACCESS MODAL -->
+<div id="earlyAccessModal" class="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeEarlyAccess()">×</button>
+    <div class="modal-title">Get Early Access</div>
+    <div class="modal-sub">Join the waitlist for new premium repositories and exclusive seller opportunities.</div>
+    <form class="modal-form" onsubmit="handleEmailSignup(event)">
+      <input type="email" class="form-input" placeholder="your@email.com" required>
+      <button type="submit" class="modal-cta">Notify Me →</button>
+      <div class="modal-guarantee">
+        ✓ 30-Day Money Back Guarantee<br>
+        ✓ SSL Secured · No spam
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge reveal">
+    <span class="badge-pip"></span>
+    <span class="badge-tag">NEW</span>
+    Instant IP Transfer · Full Commercial License
+  </div>
+  <h1 class="hero-title reveal">
+    <span class="line1">Buy complete, production-ready software.</span>
+    <span class="line2">Deploy today. Own everything.</span>
+  </h1>
+  <p class="hero-sub reveal">Curated repositories. Real businesses you can run or monetize immediately. No half-built templates. No code dumps.</p>
+  
+  <div class="trust-badges reveal">
+    <div class="trust-badge">Full IP Ownership</div>
+    <div class="trust-badge">Verified Codebases</div>
+    <div class="trust-badge">Instant Delivery</div>
+  </div>
+
+  <div class="hero-actions reveal">
+    <button onclick="openEarlyAccess()" class="btn-primary">
+      Secure Early Access
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <a href="#browse" class="btn-secondary">
+      View First Drop
+    </a>
+  </div>
+
+  <div class="hero-stats reveal">
+    <div class="hero-stat">
+      <div class="stat-num">10</div>
+      <div class="stat-label">Premium Listings</div>
+    </div>
+    <div class="hero-stat" style="flex: 1.5">
+      <div class="stat-num">First Drop</div>
+      <div class="stat-label">Launching soon with curated repositories</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">IP Transferred</div>
+    </div>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF TICKER -->
+<div class="social-proof-ticker" id="ticker">
+  <div class="ticker-dot"></div>
+  <div class="ticker-text" id="ticker-text">Sarah M. just acquired Analytics Platform</div>
+  <div class="ticker-time">2 mins ago</div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track" id="marquee">
+    <div class="marquee-item">⬡ Next.js 15 <span>SaaS Starter Kit</span></div>
+    <div class="marquee-item">⬡ FastAPI + Redis <span>High-Perf Backend</span></div>
+    <div class="marquee-item">⬡ React Native <span>Cross-Platform App</span></div>
+    <div class="marquee-item">⬡ Supabase Auth <span>Full-Stack Template</span></div>
+    <div class="marquee-item">⬡ AI Trading Engine <span>Algorithmic Core</span></div>
+    <div class="marquee-item">⬡ Stripe Integration <span>Billing Infrastructure</span></div>
+    <div class="marquee-item">⬡ WebSocket Server <span>Real-Time System</span></div>
+    <div class="marquee-item">⬡ Playwright Suite <span>E2E Test Coverage</span></div>
+    <div class="marquee-item">⬡ Next.js 15 <span>SaaS Starter Kit</span></div>
+    <div class="marquee-item">⬡ FastAPI + Redis <span>High-Perf Backend</span></div>
+    <div class="marquee-item">⬡ React Native <span>Cross-Platform App</span></div>
+    <div class="marquee-item">⬡ Supabase Auth <span>Full-Stack Template</span></div>
+    <div class="marquee-item">⬡ AI Trading Engine <span>Algorithmic Core</span></div>
+    <div class="marquee-item">⬡ Stripe Integration <span>Billing Infrastructure</span></div>
+    <div class="marquee-item">⬡ WebSocket Server <span>Real-Time System</span></div>
+    <div class="marquee-item">⬡ Playwright Suite <span>E2E Test Coverage</span></div>
+  </div>
+</div>
+
+<hr class="glow-line">
+
+<!-- FEATURED REPOS -->
+<section id="browse">
+  <div class="section-header reveal">
+    <div class="section-label">First Drop</div>
+    <h2 class="section-title">Ready to launch.<br>Ready to monetize.</h2>
+    <p class="section-sub">Premium, production-ready repositories with full IP transfer. Start your next business today.</p>
+  </div>
+  <div class="repos-grid reveal" id="listings-container">
+    <!-- Listings will be injected here -->
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section id="categories" style="padding-top:0">
+  <div class="section-header reveal">
+    <div class="section-label">Categories</div>
+    <h2 class="section-title">Every stack.<br>Every domain.</h2>
+  </div>
+  <div class="cats-grid reveal">
+    <div class="cat-card">
+      <span class="cat-icon">🤖</span>
+      <div class="cat-name">AI & Machine Learning</div>
+      <div class="cat-count">48 repositories</div>
+      <div class="cat-arrow">→</div>
+    </div>
+    <div class="cat-card">
+      <span class="cat-icon">💳</span>
+      <div class="cat-name">Payments & Billing</div>
+      <div class="cat-count">31 repositories</div>
+      <div class="cat-arrow">→</div>
+    </div>
+    <div class="cat-card">
+      <span class="cat-icon">🔐</span>
+      <div class="cat-name">Auth & Security</div>
+      <div class="cat-count">27 repositories</div>
+      <div class="cat-arrow">→</div>
+    </div>
+    <div class="cat-card">
+      <span class="cat-icon">📊</span>
+      <div class="cat-name">Analytics & Data</div>
+      <div class="cat-count">52 repositories</div>
+      <div class="cat-arrow">→</div>
+    </div>
+    <div class="cat-card">
+      <span class="cat-icon">🌐</span>
+      <div class="cat-name">Infrastructure & DevOps</div>
+      <div class="cat-count">39 repositories</div>
+      <div class="cat-arrow">→</div>
+    </div>
+    <div class="cat-card">
+      <span class="cat-icon">📱</span>
+      <div class="cat-name">Mobile — iOS & Android</div>
+      <div class="cat-count">22 repositories</div>
+      <div class="cat-arrow">→</div>
+    </div>
+    <div class="cat-card">
+      <span class="cat-icon">🛒</span>
+      <div class="cat-name">E-Commerce</div>
+      <div class="cat-count">18 repositories</div>
+      <div class="cat-arrow">→</div>
+    </div>
+    <div class="cat-card">
+      <span class="cat-icon">⚡</span>
+      <div class="cat-name">APIs & Integrations</div>
+      <div class="cat-count">61 repositories</div>
+      <div class="cat-arrow">→</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-header reveal" style="text-align:center;max-width:500px;margin:0 auto 64px">
+    <div class="section-label" style="justify-content:center">Process</div>
+    <h2 class="section-title">From discovery<br>to deployment.</h2>
+    <p class="section-sub" style="margin:0 auto">Built for developers who move fast and don't have time for middlemen.</p>
+  </div>
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-title">Browse Listings</div>
+      <div class="step-desc">Each repository is hand-selected for production readiness. View the full tech stack and documentation before you buy.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-title">One-Click Buy</div>
+      <div class="step-desc">Secure checkout via Stripe. Payment triggers an instant handover of the repository and its commercial license.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-title">Own the IP</div>
+      <div class="step-desc">Full commercial license, unrestricted. You own the code — resell, white-label, or build your entire business on it.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-title">Deploy Today</div>
+      <div class="step-desc">Full source access is delivered instantly. Every repo includes clear deployment guides to get you live in minutes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section>
+  <div class="section-header reveal" style="text-align:center;margin:0 auto 64px;max-width:480px">
+    <div class="section-label" style="justify-content:center">Reviews</div>
+    <h2 class="section-title">Devs who shipped<br>on day one.</h2>
+  </div>
+  <div class="testimonials reveal">
+    <div class="testi">
+      <div class="stars">★★★★★</div>
+      <div class="testi-verified">Verified Purchase</div>
+      <div class="testi-text">"Bought the analytics platform, swapped the logo, and had a paying client within 72 hours. The code quality is genuinely impressive — I've seen worse from $500k engineering teams."</div>
+      <div class="testi-author">
+        <div class="avatar av1">MK</div>
+        <div>
+          <div class="testi-name">Marcus K.</div>
+          <div class="testi-role">Indie SaaS · Seattle</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi">
+      <div class="stars">★★★★★</div>
+      <div class="testi-verified">Verified Purchase</div>
+      <div class="testi-text">"The LLM Gateway repo saved my team 6 weeks of infrastructure work. Plug it in, configure your keys, and it just works. The included deployment guide answered every question I had."</div>
+      <div class="testi-author">
+        <div class="avatar av2">SR</div>
+        <div>
+          <div class="testi-name">Sophia R.</div>
+          <div class="testi-company">CTO · Series A Startup</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi">
+      <div class="stars">★★★★★</div>
+      <div class="testi-verified">Verified Purchase</div>
+      <div class="testi-text">"I've been freelancing for 8 years. This is the first marketplace where I don't feel like I'm gambling. The repositories are production-grade, documentation is clear, and the transfer is instant."</div>
+      <div class="testi-author">
+        <div class="avatar av3">JT</div>
+        <div>
+          <div class="testi-name">Jordan T.</div>
+          <div class="testi-company">Senior Engineer · Contractor</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section" id="sell">
+  <div class="cta-glow"></div>
+  <div class="cta-inner reveal">
+    <div class="section-label" style="justify-content:center;margin-bottom:20px">List your repo</div>
+    <div class="cta-title">
+      Your code is<br>
+      <span style="color:var(--cyan);text-shadow:0 0 30px rgba(255,106,26,0.4);">worth real money.</span>
+    </div>
+    <p class="cta-sub">Built something exceptional? List it on RepoDepot. We verify the quality, price it right, and handle the secure transfer. You keep 85% of the sale.</p>
+    <div class="cta-buttons">
+      <button onclick="openEarlyAccess()" class="btn-primary">Submit Your Repo →</button>
+      <a href="#" class="btn-secondary">View Seller Guide</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-logo">
+        <span style="color:var(--cyan);">RepoDepot</span>
+      </div>
+      <div class="footer-tagline">Premium Repositories. Instant Delivery.</div>
+      <div style="margin-top:20px;display:flex;gap:12px">
+        <a href="#" style="width:32px;height:32px;border-radius:7px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;transition:all 0.2s">𝕏</a>
+        <a href="#" style="width:32px;height:32px;border-radius:7px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;transition:all 0.2s">f</a>
+      </div>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Marketplace</h4>
+        <a onclick="alert('Coming soon: Browse all repos')">Browse All</a>
+        <a href="#browse">Featured</a>
+        <a onclick="alert('Coming soon: New arrivals')">New Arrivals</a>
+        <a href="#categories">Categories</a>
+      </div>
+      <div class="footer-col">
+        <h4>Sellers</h4>
+        <a onclick="openEarlyAccess()">List a Repo</a>
+        <a onclick="alert('Coming soon: Seller guide')">Seller Guide</a>
+        <a onclick="alert('Coming soon: Curation process')">Curation Process</a>
+        <a onclick="alert('Coming soon: Pricing details')">Pricing</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a onclick="alert('Coming soon: About page')">About</a>
+        <a onclick="alert('Coming soon: Blog')">Blog</a>
+        <a onclick="alert('Coming soon: Terms')">Terms</a>
+        <a onclick="alert('Coming soon: Privacy')">Privacy</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 RepoDepot. All rights reserved.</span>
+    <span style="color:var(--dim)">Built for developers who ship.</span>
+  </div>
+</footer>
+
+<script>
+// CURSOR
+const cursor=document.getElementById('cursor');
+const ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px'});
+function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing)}
+animRing();
+
+// CARD MOUSE TRACK
+function trackMouse(el,e){
+  const r=el.getBoundingClientRect();
+  el.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
+  el.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+}
+
+// SCROLL REVEAL
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// MARQUEE PAUSE ON HOVER
+const marquee=document.getElementById('marquee');
+marquee.parentElement.addEventListener('mouseenter',()=>marquee.style.animationPlayState='paused');
+marquee.parentElement.addEventListener('mouseleave',()=>marquee.style.animationPlayState='running');
+
+// STAGGER REVEALS
+document.querySelectorAll('.repos-grid .repo-card,.cats-grid .cat-card').forEach((el,i)=>{
+  el.style.transitionDelay=(i*0.06)+'s';
+  el.classList.add('reveal');
+  obs.observe(el);
+});
+
+// TYPEWRITER in terminal
+const lines=document.querySelectorAll('.terminal-body > div');
+lines.forEach((line,i)=>{
+  line.style.opacity='0';
+  line.style.transform='translateY(4px)';
+  line.style.transition='opacity 0.3s ease,transform 0.3s ease';
+  setTimeout(()=>{line.style.opacity='1';line.style.transform='translateY(0)'},300+i*180);
+});
+
+// MODAL FUNCTIONS
+function openEarlyAccess(){
+  document.getElementById('earlyAccessModal').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+
+function closeEarlyAccess(){
+  document.getElementById('earlyAccessModal').classList.remove('active');
+  document.body.style.overflow='auto';
+}
+
+document.getElementById('earlyAccessModal').addEventListener('click',(e)=>{
+  if(e.target.id==='earlyAccessModal'){
+    closeEarlyAccess();
+  }
+});
+
+// EMAIL SIGNUP
+function handleEmailSignup(e){
+  e.preventDefault();
+  const email=e.target.querySelector('input[type="email"]').value;
+  alert('✓ Thanks for joining! We\'ll notify '+email+' when new repos drop. Check your inbox for a welcome email!');
+  e.target.reset();
+  closeEarlyAccess();
+}
+
+// FETCH & RENDER LISTINGS
+async function loadListings(){
+  const container=document.getElementById('listings-container');
+  try{
+    const res=await fetch('/api/listings');
+    const data=await res.json();
+    
+    container.innerHTML=data.map((repo,i)=>`
+      <div class="repo-card ${repo.featured?'featured':''}" onmousemove="trackMouse(this,event)" style="transition-delay: ${i*0.06}s">
+        ${repo.badge?`<div class="featured-badge">${repo.badge}</div>`:''}
+        ${repo.inventory_badge?`<div class="inventory-badge">${repo.inventory_badge}</div>`:''}
+        <div class="repo-top">
+          <div class="repo-icon">${repo.icon||'📦'}</div>
+          <div class="repo-price">$${repo.price.toLocaleString()}<span> USD</span>
+            <div class="tooltip">
+              <span class="tooltip-icon">ℹ️</span>
+              <span class="tooltip-text">${repo.tooltip}</span>
+            </div>
+          </div>
+        </div>
+        <div class="repo-name">${repo.name}</div>
+        <div class="repo-desc">${repo.description}</div>
+        <div class="repo-tags">
+          ${repo.tags.map(tag=>`<span class="tag ${tag.toLowerCase().includes('next')?'cyan':tag.toLowerCase().includes('fastapi')||tag.toLowerCase().includes('prisma')||tag.toLowerCase().includes('python')?'violet':tag.toLowerCase().includes('redis')||tag.toLowerCase().includes('go')?'emerald':'' }">${tag}</span>`).join('')}
+        </div>
+        <div class="repo-footer">
+          <div class="repo-meta">
+            <span>${repo.sloc.toLocaleString()} SLOC</span>
+            <span>Full IP Transfer</span>
+          </div>
+          <button class="repo-buy" onclick="openEarlyAccess()">Buy for $${repo.price.toLocaleString()} — Instant Access</button>
+        </div>
+      </div>
+    `).join('');
+
+    // Re-observe new elements
+    document.querySelectorAll('#listings-container .repo-card').forEach(el=>obs.observe(el));
+  }catch(err){
+    console.error('Failed to load listings:',err);
+    container.innerHTML='<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--muted)">Failed to load premium listings. Please refresh or try again later.</div>';
+  }
+}
+loadListings();
+
+// LIVE SOCIAL PROOF TICKER
+const purchases=[
+  {name:'Sarah M.',repo:'Analytics Platform',time:'2 mins'},
+  {name:'David L.',repo:'LLM Gateway',time:'5 mins'},
+  {name:'Emma J.',repo:'SaaS Billing Engine',time:'8 mins'},
+  {name:'Alex K.',repo:'Auth Zero',time:'12 mins'},
+  {name:'Jordan T.',repo:'Edge CDN',time:'15 mins'},
+  {name:'Casey R.',repo:'AI Trading Dashboard',time:'18 mins'}
+];
+let purchaseIndex=0;
+
+function updateTicker(){
+  const p=purchases[purchaseIndex];
+  document.getElementById('ticker-text').textContent=p.name+' just acquired '+p.repo;
+  document.querySelector('.ticker-time').textContent=p.time+' ago';
+  purchaseIndex=(purchaseIndex+1)%purchases.length;
+}
+setInterval(updateTicker,8000);
+</script>
+</body>
+</html>
