@@ -3,7 +3,7 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-// Seed data with strict business messaging - exported for fallback
+// Seed data — 100% focused on business value & buyer ROI
 const seedListings = [
   {
     id: 1,
@@ -16,7 +16,7 @@ const seedListings = [
     tech_stack: JSON.stringify(['Next.js 15', 'FastAPI', 'Redis', 'Supabase']),
     featured: 1,
     details: JSON.stringify({
-      monetization: 'Designed for premium subscription models. break-even with 15-20 users.',
+      monetization: 'Designed for premium subscription models. Break-even with 15-20 users.',
       operational_cost: 'Low. Fully containerized and optimized for high-performance edge deployment.',
       market_ready: 'Includes professional UI, real-time data feeds, and proprietary signal logic.'
     }),
@@ -63,7 +63,7 @@ try {
   const dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), 'repodepot.db');
   
   // On Vercel, the filesystem is read-only except /tmp
-  // For MVP, we'll try to use a local DB if writable, else we use in-memory fallback
+  // For production robustness, we use in-memory fallback
   db = new Database(dbPath, { timeout: 5000 });
 
   db.exec(`
@@ -92,6 +92,7 @@ try {
       for (const listing of listings) insert.run(listing);
     });
     transaction(seedListings);
+    console.log('Database seeded successfully');
   }
 } catch (err) {
   console.error('Database initialization error:', err.message);
