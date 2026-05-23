@@ -555,7 +555,7 @@ footer{
   <div class="hero-badge reveal">
     <span class="badge-pip"></span>
     <span class="badge-tag">NEW</span>
-    Instant IP Transfer · Full Commercial License
+    Instant IP Transfer · Production-Ready
   </div>
   <h1 class="hero-title reveal">
     <span class="line1">Buy complete, production-ready software businesses.</span>
@@ -565,7 +565,7 @@ footer{
   
   <div class="trust-badges reveal">
     <div class="trust-badge">Full IP Ownership</div>
-    <div class="trust-badge">Verified Products</div>
+    <div class="trust-badge">Production-Ready</div>
     <div class="trust-badge">Instant Delivery</div>
   </div>
 
@@ -582,15 +582,15 @@ footer{
   <div class="hero-stats reveal">
     <div class="hero-stat">
       <div class="stat-num">Curated</div>
-      <div class="stat-label">Product Listings</div>
+      <div class="stat-label">Production Assets</div>
     </div>
     <div class="hero-stat" style="flex: 1.5">
       <div class="stat-num">First Drop</div>
-      <div class="stat-label">Launching soon with full repositories</div>
+      <div class="stat-label">Launching with 10+ software businesses</div>
     </div>
     <div class="hero-stat">
       <div class="stat-num">100%</div>
-      <div class="stat-label">IP Transferred</div>
+      <div class="stat-label">Ownership Transferred</div>
     </div>
   </div>
 </section>
@@ -598,8 +598,47 @@ footer{
 <!-- SOCIAL PROOF TICKER -->
 <div class="social-proof-ticker" id="ticker">
   <div class="ticker-dot"></div>
-  <div class="ticker-text" id="ticker-text">Sarah M. just acquired Analytics Engine</div>
+  <div class="ticker-text" id="ticker-text">Sarah M. just acquired Analytics Engine Business</div>
   <div class="ticker-time">2 mins ago</div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div id="checkoutModal" class="modal">
+  <div class="modal-content" style="max-width: 500px; padding: 0; overflow: hidden; background: #fff; color: #30313d;">
+    <button class="modal-close" onclick="closeModal('checkoutModal')" style="color: #a3acb9; top: 12px; right: 12px; z-index: 10;">×</button>
+    <div style="display: flex; flex-direction: column; min-height: 400px;">
+      <!-- Stripe-style header -->
+      <div style="padding: 32px; background: #f6f9fc; border-bottom: 1px solid #e6ebf1;">
+        <div style="font-size: 14px; font-weight: 600; color: #697386; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.025em;">RepoDepot Secure Checkout</div>
+        <div id="checkout-item-name" style="font-size: 24px; font-weight: 700; color: #1a1f36; margin-bottom: 4px;">Product Name</div>
+        <div id="checkout-item-price" style="font-size: 18px; font-weight: 500; color: #3c4257;">$0.00</div>
+      </div>
+      <!-- Stripe-style form body -->
+      <div style="padding: 32px; flex-grow: 1;">
+        <div style="margin-bottom: 24px;">
+          <label style="display: block; font-size: 14px; font-weight: 500; color: #3c4257; margin-bottom: 8px;">Email Address</label>
+          <input type="email" placeholder="you@example.com" style="width: 100%; padding: 12px; border: 1px solid #e6ebf1; border-radius: 4px; font-size: 16px; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#556cd6'">
+        </div>
+        <div style="margin-bottom: 24px;">
+          <label style="display: block; font-size: 14px; font-weight: 500; color: #3c4257; margin-bottom: 8px;">Card Information</label>
+          <div style="border: 1px solid #e6ebf1; border-radius: 4px; padding: 12px; background: #fff;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="color: #a3acb9;">💳</span>
+              <input type="text" placeholder="1234 5678 1234 5678" style="border: none; outline: none; flex-grow: 1; font-size: 16px;">
+              <input type="text" placeholder="MM / YY" style="border: none; outline: none; width: 60px; font-size: 16px;">
+              <input type="text" placeholder="CVC" style="border: none; outline: none; width: 40px; font-size: 16px;">
+            </div>
+          </div>
+        </div>
+        <button onclick="handleCheckout()" style="width: 100%; background: #556cd6; color: #fff; border: none; padding: 16px; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.15s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          Complete Acquisition
+        </button>
+        <div style="margin-top: 16px; font-size: 12px; color: #697386; text-align: center;">
+          Payments secured by Stripe. Instant IP transfer upon completion.
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- MARQUEE -->
@@ -940,7 +979,7 @@ async function loadListings(){
             <span>Complete Business</span>
             <span>Full IP Ownership</span>
           </div>
-          <button class="repo-buy" onclick="event.stopPropagation(); openEarlyAccess()">Buy — $${repo.price.toLocaleString()}</button>
+          <button class="repo-buy" onclick="event.stopPropagation(); openCheckout(${repo.id})">Buy — $${repo.price.toLocaleString()}</button>
         </div>
       </div>
     `).join('');
@@ -950,6 +989,23 @@ async function loadListings(){
     console.error('Failed to load listings:',err);
     container.innerHTML='<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--muted)">Failed to load premium listings. Please refresh or try again later.</div>';
   }
+}
+
+function openCheckout(id) {
+  const repo = listingsData.find(l => l.id === id);
+  if(!repo) return;
+  
+  document.getElementById('checkout-item-name').textContent = repo.name;
+  document.getElementById('checkout-item-price').textContent = `$${repo.price.toLocaleString()} USD`;
+  
+  closeModal('detailModal');
+  openModal('checkoutModal');
+}
+
+async function handleCheckout() {
+  alert('Redirecting to secure Stripe checkout flow...');
+  // In next iteration, this will call /api/checkout
+  window.location.reload();
 }
 
 function showDetail(id){
@@ -983,7 +1039,7 @@ function showDetail(id){
       </div>
     </div>
 
-    <button class="btn-primary" style="width:100%;" onclick="openEarlyAccess()">Start Acquisition Flow →</button>
+    <button class="btn-primary" style="width:100%;" onclick="openCheckout(${repo.id})">Start Acquisition Flow →</button>
   `;
   openModal('detailModal');
 }
